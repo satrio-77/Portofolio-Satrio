@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satrio Putra Prasetyo - Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .admin-panel { display: none; }
+        .admin-panel.active { display: block; }
+        .nav-link.active { color: #667eea; border-bottom: 2px solid #667eea; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="text-2xl font-bold text-gray-800">Satrio Putra Prasetyo</div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#beranda" class="nav-link text-gray-600 hover:text-blue-600 transition duration-300 active">Beranda</a>
+                    <a href="#profil" class="nav-link text-gray-600 hover:text-blue-600 transition duration-300">Profil</a>
+                    <a href="#kontak" class="nav-link text-gray-600 hover:text-blue-600 transition duration-300">Kontak</a>
+                    <button onclick="toggleAdmin()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
+                        <i class="fas fa-cog mr-2"></i>Admin
+                    </button>
+                </div>
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-600">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="mobile-menu" class="md:hidden hidden pb-4">
+                <a href="#beranda" class="block py-2 text-gray-600 hover:text-blue-600">Beranda</a>
+                <a href="#profil" class="block py-2 text-gray-600 hover:text-blue-600">Profil</a>
+                <a href="#kontak" class="block py-2 text-gray-600 hover:text-blue-600">Kontak</a>
+                <button onclick="toggleAdmin()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg">Admin</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="admin-panel fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="bg-white w-full max-w-md mx-auto mt-32 rounded-lg shadow-xl">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800">Login Admin</h2>
+                    <button onclick="closeLogin()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                        <input type="text" id="username" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan username" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan password" required>
+                    </div>
+                    <div id="login-error" class="text-red-600 text-sm hidden">Username atau password salah!</div>
+                    <div class="flex space-x-4">
+                        <button type="button" onclick="closeLogin()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Batal</button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="admin-panel fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="bg-white w-full max-w-4xl mx-auto mt-20 rounded-lg shadow-xl max-h-[80vh] overflow-y-auto">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800">Panel Admin</h2>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-600">Selamat datang, <strong>Satrio</strong></span>
+                        <button onclick="logout()" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        </button>
+                        <button onclick="toggleAdmin()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Profil Admin -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">Edit Profil</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Foto Profil</label>
+                                <input type="file" id="profil.jpeg" accept="image/*" class="w-full p-2 border rounded-lg">
+                            </div>
+                            <input type="text" id="admin-nama" placeholder="Nama Lengkap" class="w-full p-2 border rounded-lg" value="Satrio Putra Prasetyo">
+                            <input type="text" id="admin-ttl" placeholder="Tempat, Tanggal Lahir" class="w-full p-2 border rounded-lg" value="Sidoarjo, 15 Maret 1995">
+                            <textarea id="admin-alamat" placeholder="Alamat" class="w-full p-2 border rounded-lg h-20">Jl. Merdeka No. 123, Jakarta Pusat, DKI Jakarta 10110</textarea>
+                            <input type="text" id="admin-phone" placeholder="No. Telepon" class="w-full p-2 border rounded-lg" value="085156171945">
+                            <input type="email" id="admin-email" placeholder="Email" class="w-full p-2 border rounded-lg" value="satrioputraprasetyo10@gmail.com">
+                        </div>
+                    </div>
+
+                    <!-- Pendidikan Admin -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">Edit Pendidikan</h3>
+                        <div id="education-admin" class="space-y-3">
+                            <div class="education-item border-b pb-3">
+                                <input type="text" placeholder="Institusi" class="w-full p-2 border rounded-lg mb-2" value="SDN Wonoplintahan 2">
+                                <input type="text" placeholder="Jurusan" class="w-full p-2 border rounded-lg mb-2" value="Sekolah Dasar">
+                                <input type="text" placeholder="Tahun" class="w-full p-2 border rounded-lg" value="2014-2020">
+                            </div>
+                            <div class="education-item border-b pb-3">
+                                <input type="text" placeholder="Institusi" class="w-full p-2 border rounded-lg mb-2" value="SMPN 1 Prambon">
+                                <input type="text" placeholder="Jurusan" class="w-full p-2 border rounded-lg mb-2" value="Sekolah Menengah Pertama">
+                                <input type="text" placeholder="Tahun" class="w-full p-2 border rounded-lg" value="2020-2023">
+                            </div>
+                            <div class="education-item border-b pb-3">
+                                <input type="text" placeholder="Institusi" class="w-full p-2 border rounded-lg mb-2" value="SMK Krian 1">
+                                <input type="text" placeholder="Jurusan" class="w-full p-2 border rounded-lg mb-2" value="Teknik Rekayasa Perangkat Lunak ">
+                                <input type="text" placeholder="Tahun" class="w-full p-2 border rounded-lg" value="2023-sekarang">
+                            </div>
+                            <div class="education-item border-b pb-3">
+                                <input type="text" placeholder="Institusi" class="w-full p-2 border rounded-lg mb-2" value="Universitas Indonesia">
+                                <input type="text" placeholder="Jurusan" class="w-full p-2 border rounded-lg mb-2" value="Teknik Informatika">
+                                <input type="text" placeholder="Tahun" class="w-full p-2 border rounded-lg" value="2013-2017">
+                            </div>
+                        </div>
+                        <button onclick="addEducation()" class="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-plus mr-2"></i>Tambah Pendidikan
+                        </button>
+                    </div>
+
+                    <!-- Prestasi Admin -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">Edit Prestasi</h3>
+                        <div id="achievement-admin" class="space-y-3">
+                            <div class="achievement-item border-b pb-3">
+                                <input type="text" placeholder="Nama Prestasi" class="w-full p-2 border rounded-lg mb-2" value="Juara 2 Kumite karate 2024">
+                                <input type="text" placeholder="Penyelenggara" class="w-full p-2 border rounded-lg mb-2" value="pengprov jawa bali dan nusa tenggara">
+                                <input type="text" placeholder="Tahun" class="w-full p-2 border rounded-lg" value="2024">
+                            </div>
+                        </div>
+                        <button onclick="addAchievement()" class="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-plus mr-2"></i>Tambah Prestasi
+                        </button>
+                    </div>
+
+                    <!-- Pengalaman Admin -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">Edit Pengalaman</h3>
+                        <div id="experience-admin" class="space-y-3">
+                            <div class="experience-item border-b pb-3">
+                                <input type="text" placeholder="Posisi" class="w-full p-2 border rounded-lg mb-2" value="Full Stack Developer">
+                                <input type="text" placeholder="Perusahaan" class="w-full p-2 border rounded-lg mb-2" value="PT. Teknologi Maju">
+                                <input type="text" placeholder="Periode" class="w-full p-2 border rounded-lg mb-2" value="2020-2024">
+                                <textarea placeholder="Deskripsi" class="w-full p-2 border rounded-lg h-20">Mengembangkan aplikasi web menggunakan React.js dan Node.js. Mengelola database MySQL dan implementasi API RESTful.</textarea>
+                            </div>
+                        </div>
+                        <button onclick="addExperience()" class="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-plus mr-2"></i>Tambah Pengalaman
+                        </button>
+                    </div>
+
+                    <!-- CV Upload -->
+                    <div class="bg-gray-50 p-4 rounded-lg md:col-span-2">
+                        <h3 class="text-lg font-semibold mb-4">Upload CV</h3>
+                        <div class="flex items-center space-x-4">
+                            <input type="file" id="cv-upload" accept=".pdf,.doc,.docx" class="flex-1 p-2 border rounded-lg">
+                            <button onclick="uploadCV()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                                <i class="cv.pdf"></i>Upload
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Format yang didukung: PDF, DOC, DOCX (Max: 5MB)</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-4">
+                    <button onclick="toggleAdmin()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Batal</button>
+                    <button onclick="saveChanges()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="cv.pdf"></i>Simpan Perubahan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="beranda" class="gradient-bg text-white pt-20">
+        <div class="max-w-7xl mx-auto px-4 py-20">
+            <div class="flex flex-col items-center text-center">
+                <div class="mb-8">
+                    <div class="w-80 h-80 rounded-full overflow-hidden border-8 border-white shadow-2xl mx-auto">
+                        <img id="profile-photo" src="profil.jpeg" alt="Profile Photo" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-5xl font-bold mb-4" id="hero-name">Satrio Putra Prasetyo</h1>
+                    <p class="text-xl mb-6 opacity-90">Full Stack Developer & UI/UX Designer</p>
+                    <p class="text-lg mb-8 opacity-80 max-w-2xl mx-auto">Sangat suka dengan Travelling, Olahraga dan Beternak.</p>
+                    <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                        <button onclick="downloadCV()" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300">
+                            <i class="fas fa-download mr-2"></i>Download CV
+                        </button>
+                        <a href="#kontak" class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition duration-300">
+                            Hubungi Saya
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pendidikan Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-16">Pendidikan</h2>
+            <div id="education-section" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-lg card-hover border-l-4 border-blue-600">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-graduation-cap text-blue-600 text-2xl mr-3"></i>
+                        <h3 class="text-lg font-semibold text-gray-800">SDN wonoplintahan 2</h3>
+                    </div>
+                    <p class="text-gray-600 mb-2">Sekolah Dasar</p>
+                    <p class="text-sm text-gray-500">2014-2020</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg card-hover border-l-4 border-green-600">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-graduation-cap text-green-600 text-2xl mr-3"></i>
+                        <h3 class="text-lg font-semibold text-gray-800">SMPN 1 Prambon</h3>
+                    </div>
+                    <p class="text-gray-600 mb-2">Sekolah Menengah Pertama</p>
+                    <p class="text-sm text-gray-500">2020-2023</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg card-hover border-l-4 border-purple-600">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-graduation-cap text-purple-600 text-2xl mr-3"></i>
+                        <h3 class="text-lg font-semibold text-gray-800">SMK Krian 1</h3>
+                    </div>
+                    <p class="text-gray-600 mb-2">Teknik Rekayasa Perangkat Lunak</p>
+                    <p class="text-sm text-gray-500">2023-Sekarang</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prestasi Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-16">Prestasi</h2>
+            <div id="achievement-section" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg card-hover border-l-4 border-yellow-500">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-trophy text-yellow-500 text-2xl mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Juara 3 Karate Kumite 2023</h3>
+                    </div>
+                    <p class="text-gray-600 mb-2">Piala ketua umum Forki Tuban</p>
+                    <p class="text-sm text-gray-500">2023</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg card-hover border-l-4 border-yellow-500">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-trophy text-yellow-500 text-2xl mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Juara 2 Karate Kumite -60 KG 2024</h3>
+                    </div>
+                    <p class="text-gray-600 mb-2">Piala Pengprov Lemkari se- Jawa Bali dan Nusa Tenggara</p>
+                    <p class="text-sm text-gray-500">2024</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg card-hover border-l-4 border-yellow-500">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-trophy text-yellow-500 text-2xl mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Juara 2 Kickboxing 2024</h3>
+                    </div>
+                    <p class="text-gray-600 mb-2">Porkab Sidoarjo</p>
+                    <p class="text-sm text-gray-500">2024</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg card-hover border-l-4 border-yellow-500">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-trophy text-yellow-500 text-2xl mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Juara 2 Kumite cadet Putra 2024</h3>
+                    </div>
+                    <p class="text-gray-600 mb-2">Direktur cup XII Politeknik Negeri Jember</p>
+                    <p class="text-sm text-gray-500">2024</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pengalaman Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-16">Pengalaman</h2>
+            <div id="experience-section" class="space-y-8">
+                <div class="bg-white p-8 rounded-xl shadow-lg card-hover border-l-4 border-green-600">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-2">Magang BCA Cash Management Academy</h3>
+                            <p class="text-lg text-blue-600 font-medium">PT. Bank Central Asia</p>
+                        </div>
+                        <div class="text-gray-500 mt-2 md:mt-0">
+                            <i class="fas fa-calendar-alt mr-2"></i>2024-2025
+                        </div>
+                    </div>
+                    <p class="text-gray-600 leading-relaxed">Di bidang cash in transit.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profil Section -->
+    <section id="profil" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-16">Profil Pribadi</h2>
+            <div class="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div class="flex items-center">
+                            <i class="fas fa-user text-blue-600 text-xl mr-4 w-6"></i>
+                            <div>
+                                <p class="text-sm text-gray-500">Nama Lengkap</p>
+                                <p class="text-lg font-semibold text-gray-800" id="profile-name">Satrio Putra Prasetyo</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-birthday-cake text-blue-600 text-xl mr-4 w-6"></i>
+                            <div>
+                                <p class="text-sm text-gray-500">Tempat, Tanggal Lahir</p>
+                                <p class="text-lg font-semibold text-gray-800" id="profile-ttl">Sidoarjo, 07 Mei 2008</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-blue-600 text-xl mr-4 w-6 mt-1"></i>
+                            <div>
+                                <p class="text-sm text-gray-500">Alamat</p>
+                                <p class="text-lg font-semibold text-gray-800" id="profile-address">wonoplintahan, Prambon, Sidoarjo</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="flex items-center">
+                            <i class="fas fa-phone text-blue-600 text-xl mr-4 w-6"></i>
+                            <div>
+                                <p class="text-sm text-gray-500">No. Telepon</p>
+                                <p class="text-lg font-semibold text-gray-800" id="profile-phone">0881036507314</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-blue-600 text-xl mr-4 w-6"></i>
+                            <div>
+                                <p class="text-sm text-gray-500">Email</p>
+                                <p class="text-lg font-semibold text-gray-800" id="profile-email">satrioputraprasetyo10@gmail.com</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-briefcase text-blue-600 text-xl mr-4 w-6"></i>
+                            <div>
+                                <p class="text-sm text-gray-500">Profesi</p>
+                                <p class="text-lg font-semibold text-gray-800">Full Stack Developer</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kontak Section -->
+    <section id="kontak" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-16">Hubungi Saya</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <a href="https://wa.me/62881036507314?text=Halo%20Satrio,%20saya%20ingin%20menghubungi%20Anda" target="WhatsApp" rel="noopener noreferrer" class="bg-green-500 text-white p-8 rounded-xl text-center card-hover group">
+                    <div class="mb-4">
+                        <svg class="w-16 h-16 mx-auto group-hover:scale-110 transition duration-300" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.63"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">WhatsApp</h3>
+                    <p class="opacity-90">0881036507314</p>
+                </a>
+                <a href="mailto:satrioputraprasetyo10@gmail.com?subject=Halo%20Satrio&body=Halo%20Satrio,%0A%0ASaya%20ingin%20menghubungi%20Anda%20mengenai..." target="_blank" rel="noopener noreferrer" class="bg-red-500 text-white p-8 rounded-xl text-center card-hover group">
+                    <div class="mb-4">
+                        <svg class="w-16 h-16 mx-auto group-hover:scale-110 transition duration-300" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.91L12 10.09l9.455-6.269h.909c.904 0 1.636.732 1.636 1.636Z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Email</h3>
+                    <p class="opacity-90">satrioputraprasetyo10@gmail.com</p>
+                </a>
+                <a href="https://instagram.com/s_47_rio" target="Instagram" rel="noopener noreferrer" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-8 rounded-xl text-center card-hover group">
+                    <div class="mb-4">
+                        <svg class="w-16 h-16 mx-auto group-hover:scale-110 transition duration-300" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Instagram</h3>
+                    <p class="opacity-90">@s_47_rio</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>&copy; 2025 Satrio Putra Prasetyo. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Navigation functionality
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    // Update active nav link
+                    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Login state
+        let isLoggedIn = false;
+
+        // Admin panel functionality
+        function toggleAdmin() {
+            if (!isLoggedIn) {
+                showLogin();
+            } else {
+                const panel = document.getElementById('admin-panel');
+                if (!panel.classList.contains('active')) {
+                    loadAdminFormData(); // Load saved data when opening admin panel
+                }
+                panel.classList.toggle('active');
+            }
+        }
+
+        function showLogin() {
+            const loginModal = document.getElementById('login-modal');
+            loginModal.classList.add('active');
+            // Clear previous inputs
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+        }
+
+        function closeLogin() {
+            const loginModal = document.getElementById('login-modal');
+            loginModal.classList.remove('active');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('login-error');
+            
+            // Check credentials (encoded for basic security)
+            const validUsername = 'satrio';
+            const validPassword = '171945';
+            
+            if (username === validUsername && password === validPassword) {
+                isLoggedIn = true;
+                closeLogin();
+                const panel = document.getElementById('admin-panel');
+                panel.classList.add('active');
+                errorDiv.classList.add('hidden');
+            } else {
+                errorDiv.classList.remove('hidden');
+                // Clear password field for security
+                document.getElementById('password').value = '';
+            }
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            const panel = document.getElementById('admin-panel');
+            panel.classList.remove('active');
+            // Clear any sensitive data if needed
+            alert('Anda telah logout dari panel admin.');
+        }
+
+        function addEducation() {
+            const container = document.getElementById('education-admin');
+            const newItem = document.createElement('div');
+            newItem.className = 'education-item border-b pb-3';
+            newItem.innerHTML = `
+                <input type="text" placeholder="Institusi" class="w-full p-2 border rounded-lg mb-2">
+                <input type="text" placeholder="Jurusan" class="w-full p-2 border rounded-lg mb-2">
+                <input type="text" placeholder="Tahun" class="w-full p-2 border rounded-lg">
+                <button onclick="this.parentElement.remove()" class="mt-2 text-red-600 hover:text-red-800">
+                    <i class="fas fa-trash"></i> Hapus
+                </button>
+            `;
+            container.appendChild(newItem);
+        }
+
+        function addAchievement() {
+            const container = document.getElementById('achievement-admin');
+            const newItem = document.createElement('div');
+            newItem.className = 'achievement-item border-b pb-3';
+            newItem.innerHTML = `
+                <input type="text" placeholder="Nama Prestasi" class="w-full p-2 border rounded-lg mb-2">
+                <input type="text" placeholder="Penyelenggara" class="w-full p-2 border rounded-lg mb-2">
+                <input type="text" placeholder="Tahun" class="w-full p-2 border rounded-lg">
+                <button onclick="this.parentElement.remove()" class="mt-2 text-red-600 hover:text-red-800">
+                    <i class="fas fa-trash"></i> Hapus
+                </button>
+            `;
+            container.appendChild(newItem);
+        }
+
+        function addExperience() {
+            const container = document.getElementById('experience-admin');
+            const newItem = document.createElement('div');
+            newItem.className = 'experience-item border-b pb-3';
+            newItem.innerHTML = `
+                <input type="text" placeholder="Posisi" class="w-full p-2 border rounded-lg mb-2">
+                <input type="text" placeholder="Perusahaan" class="w-full p-2 border rounded-lg mb-2">
+                <input type="text" placeholder="Periode" class="w-full p-2 border rounded-lg mb-2">
+                <textarea placeholder="Deskripsi" class="w-full p-2 border rounded-lg h-20"></textarea>
+                <button onclick="this.parentElement.remove()" class="mt-2 text-red-600 hover:text-red-800">
+                    <i class="fas fa-trash"></i> Hapus
+                </button>
+            `;
+            container.appendChild(newItem);
+        }
+
+        // Image upload functionality
+        document.getElementById('profile-image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profile-photo').src = e.target.result;
+                    // Save photo to localStorage immediately
+                    const savedData = JSON.parse(localStorage.getItem('portfolioData') || '{}');
+                    savedData.profilePhoto = e.target.result;
+                    localStorage.setItem('portfolioData', JSON.stringify(savedData));
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Load admin form data when opening admin panel
+        function loadAdminFormData() {
+            const savedData = localStorage.getItem('portfolioData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Load education items in admin form
+                if (data.education && data.education.length > 0) {
+                    const educationContainer = document.getElementById('education-admin');
+                    educationContainer.innerHTML = '';
+                    
+                    data.education.forEach(edu => {
+                        const newItem = document.createElement('div');
+                        newItem.className = 'education-item border-b pb-3';
+                        newItem.innerHTML = `
+                            <input type="text" placeholder="Institusi" class="w-full p-2 border rounded-lg mb-2" value="${edu.institusi}">
+                            <input type="text" placeholder="Jurusan" class="w-full p-2 border rounded-lg mb-2" value="${edu.jurusan}">
+                            <input type="text" placeholder="Tahun" class="w-full p-2 border rounded-lg" value="${edu.tahun}">
+                            <button onclick="this.parentElement.remove()" class="mt-2 text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        `;
+                        educationContainer.appendChild(newItem);
+                    });
+                }
+                
+                // Load achievement items in admin form
+                if (data.achievements && data.achievements.length > 0) {
+                    const achievementContainer = document.getElementById('achievement-admin');
+                    achievementContainer.innerHTML = '';
+                    
+                    data.achievements.forEach(achievement => {
+                        const newItem = document.createElement('div');
+                        newItem.className = 'achievement-item border-b pb-3';
+                        newItem.innerHTML = `
+                            <input type="text" placeholder="Nama Prestasi" class="w-full p-2 border rounded-lg mb-2" value="${achievement.nama}">
+                            <input type="text" placeholder="Penyelenggara" class="w-full p-2 border rounded-lg mb-2" value="${achievement.penyelenggara}">
+                            <input type="text" placeholder="Tahun" class="w-full p-2 border rounded-lg" value="${achievement.tahun}">
+                            <button onclick="this.parentElement.remove()" class="mt-2 text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        `;
+                        achievementContainer.appendChild(newItem);
+                    });
+                }
+                
+                // Load experience items in admin form
+                if (data.experiences && data.experiences.length > 0) {
+                    const experienceContainer = document.getElementById('experience-admin');
+                    experienceContainer.innerHTML = '';
+                    
+                    data.experiences.forEach(exp => {
+                        const newItem = document.createElement('div');
+                        newItem.className = 'experience-item border-b pb-3';
+                        newItem.innerHTML = `
+                            <input type="text" placeholder="Posisi" class="w-full p-2 border rounded-lg mb-2" value="${exp.posisi}">
+                            <input type="text" placeholder="Perusahaan" class="w-full p-2 border rounded-lg mb-2" value="${exp.perusahaan}">
+                            <input type="text" placeholder="Periode" class="w-full p-2 border rounded-lg mb-2" value="${exp.periode}">
+                            <textarea placeholder="Deskripsi" class="w-full p-2 border rounded-lg h-20">${exp.deskripsi}</textarea>
+                            <button onclick="this.parentElement.remove()" class="mt-2 text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        `;
+                        experienceContainer.appendChild(newItem);
+                    });
+                }
+            }
+        }
+
+        // CV upload functionality
+        let uploadedCV = null;
+
+        function uploadCV() {
+            const fileInput = document.getElementById('cv-upload');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Silakan pilih file CV terlebih dahulu!');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Ukuran file terlalu besar! Maksimal 5MB.');
+                return;
+            }
+
+            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Format file tidak didukung! Gunakan PDF, DOC, atau DOCX.');
+                return;
+            }
+
+            // Simulate upload
+            uploadedCV = file;
+            alert('CV berhasil diupload! Sekarang pengunjung dapat mendownload CV Anda.');
+        }
+
+        function downloadCV() {
+            if (!uploadedCV) {
+                // Create a sample CV download
+                const cvContent = `
+                    CURRICULUM VITAE
+                    
+                    Nama: Satrio Putra Prasetyo
+                    Email: satrioputraprasetyo10@gmail.com
+                    Telepon: 0881036507314
+                    
+                    PENDIDIKAN:
+                    - SDN Wonoplintahan 2 (2014-2020)
+                    - SMPN 1 Prambon (2020-2023)
+                    - SMK Krian 1 (2023-sekarang)
+                    
+                    PENGALAMAN:
+                    - Magang di BCA Cash Management Academy di PT. Bank Central Asia (2024-2025)
+                    
+                    PRESTASI:
+                    - Juara 2 karate kumite 2023
+                    - Juara 3 porkab Kicboxing 2024
+                `;
+                
+                const blob = new Blob([cvContent], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'cv.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } else {
+                // Download uploaded CV
+                const url = window.URL.createObjectURL(uploadedCV);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = uploadedCV.name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+        }
+
+        // Load saved data on page load
+        function loadSavedData() {
+            const savedData = localStorage.getItem('portfolioData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Load profile data
+                if (data.profile) {
+                    document.getElementById('admin-nama').value = data.profile.nama || 'Satrio Putra Prasetyo';
+                    document.getElementById('admin-ttl').value = data.profile.ttl || 'Sidoarjo, 07 Mei 2008';
+                    document.getElementById('admin-alamat').value = data.profile.alamat || 'Wonoplintahan, Prambon, Sidoarjo';
+                    document.getElementById('admin-phone').value = data.profile.phone || '0881036507314';
+                    document.getElementById('admin-email').value = data.profile.email || 'satrioputraprasetyo10@gmail.com';
+                    
+                    // Update display
+                    document.getElementById('hero-name').textContent = data.profile.nama;
+                    document.getElementById('profile-name').textContent = data.profile.nama;
+                    document.getElementById('profile-ttl').textContent = data.profile.ttl;
+                    document.getElementById('profile-address').textContent = data.profile.alamat;
+                    document.getElementById('profile-phone').textContent = data.profile.phone;
+                    document.getElementById('profile-email').textContent = data.profile.email;
+                }
+                
+                // Load profile photo
+                if (data.profilePhoto) {
+                    document.getElementById('profile-photo').src = data.profilePhoto;
+                }
+                
+                // Load education data
+                if (data.education) {
+                    loadEducationData(data.education);
+                }
+                
+                // Load achievement data
+                if (data.achievements) {
+                    loadAchievementData(data.achievements);
+                }
+                
+                // Load experience data
+                if (data.experiences) {
+                    loadExperienceData(data.experiences);
+                }
+            }
+        }
+
+        function saveChanges() {
+            // Collect profile information
+            const nama = document.getElementById('admin-nama').value;
+            const ttl = document.getElementById('admin-ttl').value;
+            const alamat = document.getElementById('admin-alamat').value;
+            const phone = document.getElementById('admin-phone').value;
+            const email = document.getElementById('admin-email').value;
+
+            // Update display
+            document.getElementById('hero-name').textContent = nama;
+            document.getElementById('profile-name').textContent = nama;
+            document.getElementById('profile-ttl').textContent = ttl;
+            document.getElementById('profile-address').textContent = alamat;
+            document.getElementById('profile-phone').textContent = phone;
+            document.getElementById('profile-email').textContent = email;
+
+            // Collect education data
+            const educationData = [];
+            const educationItems = document.querySelectorAll('#education-admin .education-item');
+            educationItems.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                if (inputs[0].value && inputs[1].value && inputs[2].value) {
+                    educationData.push({
+                        institusi: inputs[0].value,
+                        jurusan: inputs[1].value,
+                        tahun: inputs[2].value
+                    });
+                }
+            });
+
+            // Collect achievement data
+            const achievementData = [];
+            const achievementItems = document.querySelectorAll('#achievement-admin .achievement-item');
+            achievementItems.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                if (inputs[0].value && inputs[1].value && inputs[2].value) {
+                    achievementData.push({
+                        nama: inputs[0].value,
+                        penyelenggara: inputs[1].value,
+                        tahun: inputs[2].value
+                    });
+                }
+            });
+
+            // Collect experience data
+            const experienceData = [];
+            const experienceItems = document.querySelectorAll('#experience-admin .experience-item');
+            experienceItems.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                const textarea = item.querySelector('textarea');
+                if (inputs[0].value && inputs[1].value && inputs[2].value) {
+                    experienceData.push({
+                        posisi: inputs[0].value,
+                        perusahaan: inputs[1].value,
+                        periode: inputs[2].value,
+                        deskripsi: textarea.value
+                    });
+                }
+            });
+
+            // Save all data to localStorage
+            const portfolioData = {
+                profile: {
+                    nama: nama,
+                    ttl: ttl,
+                    alamat: alamat,
+                    phone: phone,
+                    email: email
+                },
+                education: educationData,
+                achievements: achievementData,
+                experiences: experienceData,
+                profilePhoto: document.getElementById('profile-photo').src
+            };
+
+            localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
+
+            // Update sections
+            loadEducationData(educationData);
+            loadAchievementData(achievementData);
+            loadExperienceData(experienceData);
+
+            alert('Perubahan berhasil disimpan secara permanen!');
+            toggleAdmin();
+        }
+
+        // Helper functions to load data into sections
+        function loadEducationData(educationData) {
+            const educationSection = document.getElementById('education-section');
+            educationSection.innerHTML = '';
+            
+            const colors = ['blue', 'green', 'purple', 'red', 'indigo', 'pink'];
+            
+            educationData.forEach((edu, index) => {
+                const color = colors[index % colors.length];
+                const educationCard = document.createElement('div');
+                educationCard.className = `bg-white p-6 rounded-xl shadow-lg card-hover border-l-4 border-${color}-600`;
+                educationCard.innerHTML = `
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-graduation-cap text-${color}-600 text-2xl mr-3"></i>
+                        <h3 class="text-lg font-semibold text-gray-800">${edu.institusi}</h3>
+                    </div>
+                    <p class="text-gray-600 mb-2">${edu.jurusan}</p>
+                    <p class="text-sm text-gray-500">${edu.tahun}</p>
+                `;
+                educationSection.appendChild(educationCard);
+            });
+        }
+
+        function loadAchievementData(achievementData) {
+            const achievementSection = document.getElementById('achievement-section');
+            achievementSection.innerHTML = '';
+            
+            achievementData.forEach(achievement => {
+                const achievementCard = document.createElement('div');
+                achievementCard.className = 'bg-white p-6 rounded-xl shadow-lg card-hover border-l-4 border-yellow-500';
+                achievementCard.innerHTML = `
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-trophy text-yellow-500 text-2xl mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">${achievement.nama}</h3>
+                    </div>
+                    <p class="text-gray-600 mb-2">${achievement.penyelenggara}</p>
+                    <p class="text-sm text-gray-500">${achievement.tahun}</p>
+                `;
+                achievementSection.appendChild(achievementCard);
+            });
+        }
+
+        function loadExperienceData(experienceData) {
+            const experienceSection = document.getElementById('experience-section');
+            experienceSection.innerHTML = '';
+            
+            experienceData.forEach(exp => {
+                const experienceCard = document.createElement('div');
+                experienceCard.className = 'bg-white p-8 rounded-xl shadow-lg card-hover border-l-4 border-green-600';
+                experienceCard.innerHTML = `
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-2">${exp.posisi}</h3>
+                            <p class="text-lg text-blue-600 font-medium">${exp.perusahaan}</p>
+                        </div>
+                        <div class="text-gray-500 mt-2 md:mt-0">
+                            <i class="fas fa-calendar-alt mr-2"></i>${exp.periode}
+                        </div>
+                    </div>
+                    <p class="text-gray-600 leading-relaxed">${exp.deskripsi}</p>
+                `;
+                experienceSection.appendChild(experienceCard);
+            });
+        }
+
+        // Scroll spy for navigation
+        window.addEventListener('scroll', function() {
+            const sections = ['beranda', 'profil', 'kontak'];
+            const scrollPos = window.scrollY + 100;
+
+            sections.forEach(section => {
+                const element = document.getElementById(section);
+                const navLink = document.querySelector(`a[href="#${section}"]`);
+                
+                if (element && navLink) {
+                    const offsetTop = element.offsetTop;
+                    const offsetHeight = element.offsetHeight;
+                    
+                    if (scrollPos >= offsetTop && scrollPos < offsetTop + offsetHeight) {
+                        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                        navLink.classList.add('active');
+                    }
+                }
+            });
+        });
+
+        // Initialize page with saved data when loaded
+        window.addEventListener('DOMContentLoaded', function() {
+            loadSavedData();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'983e55a3c5245fd2',t:'MTc1ODY3NTUxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
